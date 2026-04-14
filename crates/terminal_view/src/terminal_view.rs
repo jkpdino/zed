@@ -97,6 +97,277 @@ actions!(
 #[action(namespace = terminal)]
 pub struct RenameTerminal;
 
+/// A curated set of icons that can be assigned to terminal tabs.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]
+pub enum TerminalTabIcon {
+    Terminal,
+    Server,
+    Code,
+    DatabaseZap,
+    GitBranch,
+    Debug,
+    Flame,
+    MagnifyingGlass,
+    Settings,
+    Star,
+    Sparkle,
+    ListTodo,
+    Archive,
+    AtSign,
+    Bell,
+    Binary,
+    Blocks,
+    Book,
+    BookCopy,
+    Box,
+    Chat,
+    Crosshair,
+    Download,
+    Envelope,
+    File,
+    FileCode,
+    FileRust,
+    FileToml,
+    Filter,
+    Folder,
+    Hash,
+    Image,
+    Info,
+    Json,
+    Keyboard,
+    Library,
+    Link,
+    Linux,
+    Notepad,
+    Pencil,
+    Person,
+    Pin,
+    Plus,
+    Power,
+    Public,
+    PullRequest,
+    Quote,
+    Reader,
+    Screen,
+    Send,
+    Slash,
+    Split,
+    Stop,
+    Tab,
+    TerminalAlt,
+    TextSnippet,
+    Thread,
+    Trash,
+    UserGroup,
+    Warning,
+}
+
+impl TerminalTabIcon {
+    pub const CURATED: &[TerminalTabIcon] = &[
+        TerminalTabIcon::Terminal,
+        TerminalTabIcon::Server,
+        TerminalTabIcon::Code,
+        TerminalTabIcon::DatabaseZap,
+        TerminalTabIcon::GitBranch,
+        TerminalTabIcon::Debug,
+        TerminalTabIcon::Flame,
+        TerminalTabIcon::MagnifyingGlass,
+        TerminalTabIcon::Settings,
+        TerminalTabIcon::Star,
+        TerminalTabIcon::Sparkle,
+        TerminalTabIcon::ListTodo,
+    ];
+
+    pub const MORE: &[TerminalTabIcon] = &[
+        TerminalTabIcon::Archive,
+        TerminalTabIcon::AtSign,
+        TerminalTabIcon::Bell,
+        TerminalTabIcon::Binary,
+        TerminalTabIcon::Blocks,
+        TerminalTabIcon::Book,
+        TerminalTabIcon::BookCopy,
+        TerminalTabIcon::Box,
+        TerminalTabIcon::Chat,
+        TerminalTabIcon::Crosshair,
+        TerminalTabIcon::Download,
+        TerminalTabIcon::Envelope,
+        TerminalTabIcon::File,
+        TerminalTabIcon::FileCode,
+        TerminalTabIcon::FileRust,
+        TerminalTabIcon::FileToml,
+        TerminalTabIcon::Filter,
+        TerminalTabIcon::Folder,
+        TerminalTabIcon::Hash,
+        TerminalTabIcon::Image,
+        TerminalTabIcon::Info,
+        TerminalTabIcon::Json,
+        TerminalTabIcon::Keyboard,
+        TerminalTabIcon::Library,
+        TerminalTabIcon::Link,
+        TerminalTabIcon::Linux,
+        TerminalTabIcon::Notepad,
+        TerminalTabIcon::Pencil,
+        TerminalTabIcon::Person,
+        TerminalTabIcon::Pin,
+        TerminalTabIcon::Plus,
+        TerminalTabIcon::Power,
+        TerminalTabIcon::Public,
+        TerminalTabIcon::PullRequest,
+        TerminalTabIcon::Quote,
+        TerminalTabIcon::Reader,
+        TerminalTabIcon::Screen,
+        TerminalTabIcon::Send,
+        TerminalTabIcon::Slash,
+        TerminalTabIcon::Split,
+        TerminalTabIcon::Stop,
+        TerminalTabIcon::Tab,
+        TerminalTabIcon::TerminalAlt,
+        TerminalTabIcon::TextSnippet,
+        TerminalTabIcon::Thread,
+        TerminalTabIcon::Trash,
+        TerminalTabIcon::UserGroup,
+        TerminalTabIcon::Warning,
+    ];
+
+    pub fn icon_name(&self) -> IconName {
+        match self {
+            TerminalTabIcon::Terminal => IconName::Terminal,
+            TerminalTabIcon::Server => IconName::Server,
+            TerminalTabIcon::Code => IconName::Code,
+            TerminalTabIcon::DatabaseZap => IconName::DatabaseZap,
+            TerminalTabIcon::GitBranch => IconName::GitBranch,
+            TerminalTabIcon::Debug => IconName::Debug,
+            TerminalTabIcon::Flame => IconName::Flame,
+            TerminalTabIcon::MagnifyingGlass => IconName::MagnifyingGlass,
+            TerminalTabIcon::Settings => IconName::Settings,
+            TerminalTabIcon::Star => IconName::Star,
+            TerminalTabIcon::Sparkle => IconName::Sparkle,
+            TerminalTabIcon::ListTodo => IconName::ListTodo,
+            TerminalTabIcon::Archive => IconName::Archive,
+            TerminalTabIcon::AtSign => IconName::AtSign,
+            TerminalTabIcon::Bell => IconName::Bell,
+            TerminalTabIcon::Binary => IconName::Binary,
+            TerminalTabIcon::Blocks => IconName::Blocks,
+            TerminalTabIcon::Book => IconName::Book,
+            TerminalTabIcon::BookCopy => IconName::BookCopy,
+            TerminalTabIcon::Box => IconName::Box,
+            TerminalTabIcon::Chat => IconName::Chat,
+            TerminalTabIcon::Crosshair => IconName::Crosshair,
+            TerminalTabIcon::Download => IconName::Download,
+            TerminalTabIcon::Envelope => IconName::Envelope,
+            TerminalTabIcon::File => IconName::File,
+            TerminalTabIcon::FileCode => IconName::FileCode,
+            TerminalTabIcon::FileRust => IconName::FileRust,
+            TerminalTabIcon::FileToml => IconName::FileToml,
+            TerminalTabIcon::Filter => IconName::Filter,
+            TerminalTabIcon::Folder => IconName::Folder,
+            TerminalTabIcon::Hash => IconName::Hash,
+            TerminalTabIcon::Image => IconName::Image,
+            TerminalTabIcon::Info => IconName::Info,
+            TerminalTabIcon::Json => IconName::Json,
+            TerminalTabIcon::Keyboard => IconName::Keyboard,
+            TerminalTabIcon::Library => IconName::Library,
+            TerminalTabIcon::Link => IconName::Link,
+            TerminalTabIcon::Linux => IconName::Linux,
+            TerminalTabIcon::Notepad => IconName::Notepad,
+            TerminalTabIcon::Pencil => IconName::Pencil,
+            TerminalTabIcon::Person => IconName::Person,
+            TerminalTabIcon::Pin => IconName::Pin,
+            TerminalTabIcon::Plus => IconName::Plus,
+            TerminalTabIcon::Power => IconName::Power,
+            TerminalTabIcon::Public => IconName::Public,
+            TerminalTabIcon::PullRequest => IconName::PullRequest,
+            TerminalTabIcon::Quote => IconName::Quote,
+            TerminalTabIcon::Reader => IconName::Reader,
+            TerminalTabIcon::Screen => IconName::Screen,
+            TerminalTabIcon::Send => IconName::Send,
+            TerminalTabIcon::Slash => IconName::Slash,
+            TerminalTabIcon::Split => IconName::Split,
+            TerminalTabIcon::Stop => IconName::Stop,
+            TerminalTabIcon::Tab => IconName::Tab,
+            TerminalTabIcon::TerminalAlt => IconName::TerminalAlt,
+            TerminalTabIcon::TextSnippet => IconName::TextSnippet,
+            TerminalTabIcon::Thread => IconName::Thread,
+            TerminalTabIcon::Trash => IconName::Trash,
+            TerminalTabIcon::UserGroup => IconName::UserGroup,
+            TerminalTabIcon::Warning => IconName::Warning,
+        }
+    }
+
+    pub fn label(&self) -> &'static str {
+        match self {
+            TerminalTabIcon::Terminal => "Terminal",
+            TerminalTabIcon::Server => "Server",
+            TerminalTabIcon::Code => "Code",
+            TerminalTabIcon::DatabaseZap => "Database",
+            TerminalTabIcon::GitBranch => "Git",
+            TerminalTabIcon::Debug => "Debug",
+            TerminalTabIcon::Flame => "Flame",
+            TerminalTabIcon::MagnifyingGlass => "Search",
+            TerminalTabIcon::Settings => "Settings",
+            TerminalTabIcon::Star => "Star",
+            TerminalTabIcon::Sparkle => "Sparkle",
+            TerminalTabIcon::ListTodo => "Tasks",
+            TerminalTabIcon::Archive => "Archive",
+            TerminalTabIcon::AtSign => "At Sign",
+            TerminalTabIcon::Bell => "Bell",
+            TerminalTabIcon::Binary => "Binary",
+            TerminalTabIcon::Blocks => "Blocks",
+            TerminalTabIcon::Book => "Book",
+            TerminalTabIcon::BookCopy => "Book Copy",
+            TerminalTabIcon::Box => "Box",
+            TerminalTabIcon::Chat => "Chat",
+            TerminalTabIcon::Crosshair => "Crosshair",
+            TerminalTabIcon::Download => "Download",
+            TerminalTabIcon::Envelope => "Envelope",
+            TerminalTabIcon::File => "File",
+            TerminalTabIcon::FileCode => "File Code",
+            TerminalTabIcon::FileRust => "File Rust",
+            TerminalTabIcon::FileToml => "File TOML",
+            TerminalTabIcon::Filter => "Filter",
+            TerminalTabIcon::Folder => "Folder",
+            TerminalTabIcon::Hash => "Hash",
+            TerminalTabIcon::Image => "Image",
+            TerminalTabIcon::Info => "Info",
+            TerminalTabIcon::Json => "JSON",
+            TerminalTabIcon::Keyboard => "Keyboard",
+            TerminalTabIcon::Library => "Library",
+            TerminalTabIcon::Link => "Link",
+            TerminalTabIcon::Linux => "Linux",
+            TerminalTabIcon::Notepad => "Notepad",
+            TerminalTabIcon::Pencil => "Pencil",
+            TerminalTabIcon::Person => "Person",
+            TerminalTabIcon::Pin => "Pin",
+            TerminalTabIcon::Plus => "Plus",
+            TerminalTabIcon::Power => "Power",
+            TerminalTabIcon::Public => "Globe",
+            TerminalTabIcon::PullRequest => "Pull Request",
+            TerminalTabIcon::Quote => "Quote",
+            TerminalTabIcon::Reader => "Reader",
+            TerminalTabIcon::Screen => "Screen",
+            TerminalTabIcon::Send => "Send",
+            TerminalTabIcon::Slash => "Slash",
+            TerminalTabIcon::Split => "Split",
+            TerminalTabIcon::Stop => "Stop",
+            TerminalTabIcon::Tab => "Tab",
+            TerminalTabIcon::TerminalAlt => "Terminal Alt",
+            TerminalTabIcon::TextSnippet => "Text Snippet",
+            TerminalTabIcon::Thread => "Thread",
+            TerminalTabIcon::Trash => "Trash",
+            TerminalTabIcon::UserGroup => "User Group",
+            TerminalTabIcon::Warning => "Warning",
+        }
+    }
+
+    fn from_str(s: &str) -> Option<Self> {
+        TerminalTabIcon::CURATED
+            .iter()
+            .chain(TerminalTabIcon::MORE.iter())
+            .find(|icon| icon.label() == s)
+            .copied()
+    }
+}
+
 /// A fixed palette of colors that can be assigned to terminal tabs.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]
 pub enum TerminalTabColor {
@@ -202,6 +473,7 @@ pub struct TerminalView {
     needs_serialize: bool,
     custom_title: Option<String>,
     custom_color: Option<TerminalTabColor>,
+    custom_icon: Option<TerminalTabIcon>,
     hover: Option<HoverTarget>,
     hover_tooltip_update: Task<()>,
     workspace_id: Option<WorkspaceId>,
@@ -356,6 +628,7 @@ impl TerminalView {
             needs_serialize: false,
             custom_title: None,
             custom_color: None,
+            custom_icon: None,
             ime_state: None,
             self_handle: cx.entity().downgrade(),
             rename_editor: None,
@@ -486,6 +759,22 @@ impl TerminalView {
         }
     }
 
+    pub fn custom_icon(&self) -> Option<TerminalTabIcon> {
+        self.custom_icon
+    }
+
+    pub fn set_custom_icon(
+        &mut self,
+        icon: Option<TerminalTabIcon>,
+        cx: &mut Context<Self>,
+    ) {
+        if self.custom_icon != icon {
+            self.custom_icon = icon;
+            self.needs_serialize = true;
+            cx.emit(ItemEvent::UpdateTab);
+            cx.notify();
+        }
+    }
 
     pub fn is_renaming(&self) -> bool {
         self.rename_editor.is_some()
@@ -1434,7 +1723,13 @@ impl Item for TerminalView {
                     }
                 }
             },
-            None => (IconName::Terminal, Color::Muted, None),
+            None => {
+                let icon = self
+                    .custom_icon
+                    .map(|i| i.icon_name())
+                    .unwrap_or(IconName::Terminal);
+                (icon, Color::Muted, None)
+            }
         };
 
         let self_handle = self.self_handle.clone();
@@ -1757,6 +2052,49 @@ impl Item for TerminalView {
             );
             menu
         })
+        .submenu("Tab Icon", {
+            let self_handle = self.self_handle.clone();
+            let current_icon = self.custom_icon;
+            move |menu, _window, _cx| {
+                let menu = build_icon_entries(
+                    menu,
+                    TerminalTabIcon::CURATED,
+                    current_icon,
+                    &self_handle,
+                );
+                let self_handle_more = self_handle.clone();
+                let self_handle_clear = self_handle.clone();
+                let menu = menu.submenu("More...", move |menu, _window, _cx| {
+                    build_icon_entries(
+                        menu,
+                        TerminalTabIcon::MORE,
+                        current_icon,
+                        &self_handle_more,
+                    )
+                });
+                menu.separator().custom_entry(
+                    move |_window, _cx| {
+                        h_flex()
+                            .w_full()
+                            .gap_2()
+                            .child(
+                                Icon::new(IconName::Close)
+                                    .size(IconSize::Small)
+                                    .color(Color::Muted),
+                            )
+                            .child(Label::new("Reset Icon").size(LabelSize::Small))
+                            .into_any_element()
+                    },
+                    move |_window, cx| {
+                        self_handle_clear
+                            .update(cx, |this, cx| {
+                                this.set_custom_icon(None, cx);
+                            })
+                            .ok();
+                    },
+                )
+            }
+        })
     }
 
     fn buffer_kind(&self, _: &App) -> workspace::item::ItemBufferKind {
@@ -1903,6 +2241,7 @@ impl SerializableItem for TerminalView {
         let cwd = terminal.working_directory();
         let custom_title = self.custom_title.clone();
         let custom_color = self.custom_color.map(|c| c.label().to_string());
+        let custom_icon = self.custom_icon.map(|i| i.label().to_string());
         self.needs_serialize = false;
 
         let db = TerminalDb::global(cx);
@@ -1914,6 +2253,8 @@ impl SerializableItem for TerminalView {
             db.save_custom_title(item_id, workspace_id, custom_title)
                 .await?;
             db.save_custom_color(item_id, workspace_id, custom_color)
+                .await?;
+            db.save_custom_icon(item_id, workspace_id, custom_icon)
                 .await?;
             Ok(())
         }))
@@ -1932,7 +2273,7 @@ impl SerializableItem for TerminalView {
         cx: &mut App,
     ) -> Task<anyhow::Result<Entity<Self>>> {
         window.spawn(cx, async move |cx| {
-            let (cwd, custom_title, custom_color) = cx
+            let (cwd, custom_title, custom_color, custom_icon) = cx
                 .update(|_window, cx| {
                     let db = TerminalDb::global(cx);
                     let from_db = db
@@ -1959,10 +2300,15 @@ impl SerializableItem for TerminalView {
                         .log_err()
                         .flatten()
                         .and_then(|c| TerminalTabColor::from_str(&c));
-                    (cwd, custom_title, custom_color)
+                    let custom_icon = db
+                        .get_custom_icon(item_id, workspace_id)
+                        .log_err()
+                        .flatten()
+                        .and_then(|i| TerminalTabIcon::from_str(&i));
+                    (cwd, custom_title, custom_color, custom_icon)
                 })
                 .ok()
-                .unwrap_or((None, None, None));
+                .unwrap_or((None, None, None, None));
 
             let terminal = project
                 .update(cx, |project, cx| project.create_terminal_shell(cwd, cx))
@@ -1982,6 +2328,9 @@ impl SerializableItem for TerminalView {
                     }
                     if custom_color.is_some() {
                         view.custom_color = custom_color;
+                    }
+                    if custom_icon.is_some() {
+                        view.custom_icon = custom_icon;
                     }
                     view
                 })
@@ -2181,6 +2530,52 @@ fn first_project_directory(workspace: &Workspace, cx: &App) -> Option<PathBuf> {
         // If worktree is a file, return its parent directory
         worktree_path.parent().map(|p| p.to_path_buf())
     }
+}
+
+fn build_icon_entries(
+    mut menu: ui::ContextMenu,
+    icons: &[TerminalTabIcon],
+    current_icon: Option<TerminalTabIcon>,
+    self_handle: &WeakEntity<TerminalView>,
+) -> ui::ContextMenu {
+    for tab_icon in icons {
+        let tab_icon = *tab_icon;
+        let icon_name = tab_icon.icon_name();
+        let label = tab_icon.label();
+        let is_selected = current_icon == Some(tab_icon);
+        let self_handle = self_handle.clone();
+        menu = menu.custom_entry(
+            move |_window, _cx| {
+                h_flex()
+                    .w_full()
+                    .gap_2()
+                    .child(
+                        Icon::new(icon_name)
+                            .size(IconSize::Small)
+                            .color(Color::Muted),
+                    )
+                    .child(Label::new(label).size(LabelSize::Small))
+                    .when(is_selected, |this| {
+                        this.child(
+                            div().ml_auto().child(
+                                Icon::new(IconName::Check)
+                                    .size(IconSize::Small)
+                                    .color(Color::Accent),
+                            ),
+                        )
+                    })
+                    .into_any_element()
+            },
+            move |_window, cx| {
+                self_handle
+                    .update(cx, |this, cx| {
+                        this.set_custom_icon(Some(tab_icon), cx);
+                    })
+                    .ok();
+            },
+        );
+    }
+    menu
 }
 
 #[cfg(test)]
