@@ -38,6 +38,7 @@ pub struct Tab {
     start_slot: Option<AnyElement>,
     end_slot: Option<AnyElement>,
     children: SmallVec<[AnyElement; 2]>,
+    custom_bg_color: Option<gpui::Hsla>,
 }
 
 impl Tab {
@@ -53,6 +54,7 @@ impl Tab {
             start_slot: None,
             end_slot: None,
             children: SmallVec::new(),
+            custom_bg_color: None,
         }
     }
 
@@ -73,6 +75,11 @@ impl Tab {
 
     pub fn end_slot<E: IntoElement>(mut self, element: impl Into<Option<E>>) -> Self {
         self.end_slot = element.into().map(IntoElement::into_any_element);
+        self
+    }
+
+    pub fn custom_bg_color(mut self, color: Option<gpui::Hsla>) -> Self {
+        self.custom_bg_color = color;
         self
     }
 
@@ -112,13 +119,15 @@ impl RenderOnce for Tab {
         let (text_color, tab_bg, _tab_hover_bg, _tab_active_bg) = match self.selected {
             false => (
                 cx.theme().colors().text_muted,
-                cx.theme().colors().tab_inactive_background,
+                self.custom_bg_color
+                    .unwrap_or(cx.theme().colors().tab_inactive_background),
                 cx.theme().colors().ghost_element_hover,
                 cx.theme().colors().ghost_element_active,
             ),
             true => (
                 cx.theme().colors().text,
-                cx.theme().colors().tab_active_background,
+                self.custom_bg_color
+                    .unwrap_or(cx.theme().colors().tab_active_background),
                 cx.theme().colors().element_hover,
                 cx.theme().colors().element_active,
             ),

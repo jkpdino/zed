@@ -19,7 +19,7 @@ use menu;
 use persistence::TerminalDb;
 use project::{Project, ProjectEntryId, search::SearchQuery};
 use schemars::JsonSchema;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use settings::{Settings, SettingsStore, TerminalBlink, WorkingDirectory};
 use std::{
     any::Any,
@@ -97,6 +97,73 @@ actions!(
 #[action(namespace = terminal)]
 pub struct RenameTerminal;
 
+/// A fixed palette of colors that can be assigned to terminal tabs.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]
+pub enum TerminalTabColor {
+    Red,
+    Orange,
+    Yellow,
+    Green,
+    Blue,
+    Purple,
+    Magenta,
+}
+
+impl TerminalTabColor {
+    pub const ALL: &[TerminalTabColor] = &[
+        TerminalTabColor::Red,
+        TerminalTabColor::Orange,
+        TerminalTabColor::Yellow,
+        TerminalTabColor::Green,
+        TerminalTabColor::Blue,
+        TerminalTabColor::Purple,
+        TerminalTabColor::Magenta,
+    ];
+
+    pub fn label(&self) -> &'static str {
+        match self {
+            TerminalTabColor::Red => "Red",
+            TerminalTabColor::Orange => "Orange",
+            TerminalTabColor::Yellow => "Yellow",
+            TerminalTabColor::Green => "Green",
+            TerminalTabColor::Blue => "Blue",
+            TerminalTabColor::Purple => "Purple",
+            TerminalTabColor::Magenta => "Magenta",
+        }
+    }
+
+    pub fn hsla(&self) -> gpui::Hsla {
+        match self {
+            TerminalTabColor::Red => gpui::hsla(0.0, 0.7, 0.5, 1.0),
+            TerminalTabColor::Orange => gpui::hsla(0.08, 0.7, 0.5, 1.0),
+            TerminalTabColor::Yellow => gpui::hsla(0.14, 0.7, 0.5, 1.0),
+            TerminalTabColor::Green => gpui::hsla(0.35, 0.6, 0.45, 1.0),
+            TerminalTabColor::Blue => gpui::hsla(0.6, 0.7, 0.55, 1.0),
+            TerminalTabColor::Purple => gpui::hsla(0.75, 0.6, 0.55, 1.0),
+            TerminalTabColor::Magenta => gpui::hsla(0.88, 0.65, 0.55, 1.0),
+        }
+    }
+
+    pub fn tab_background(&self) -> gpui::Hsla {
+        let base = self.hsla();
+        gpui::hsla(base.h, base.s * 0.4, base.l, 0.15)
+    }
+
+    fn from_str(s: &str) -> Option<Self> {
+        match s {
+            "Red" => Some(TerminalTabColor::Red),
+            "Orange" => Some(TerminalTabColor::Orange),
+            "Yellow" => Some(TerminalTabColor::Yellow),
+            "Green" => Some(TerminalTabColor::Green),
+            "Blue" => Some(TerminalTabColor::Blue),
+            "Purple" => Some(TerminalTabColor::Purple),
+            "Magenta" => Some(TerminalTabColor::Magenta),
+            _ => None,
+        }
+    }
+}
+
+
 pub fn init(cx: &mut App) {
     terminal_panel::init(cx);
 
@@ -134,6 +201,7 @@ pub struct TerminalView {
     blinking_terminal_enabled: bool,
     needs_serialize: bool,
     custom_title: Option<String>,
+    custom_color: Option<TerminalTabColor>,
     hover: Option<HoverTarget>,
     hover_tooltip_update: Task<()>,
     workspace_id: Option<WorkspaceId>,
@@ -287,6 +355,7 @@ impl TerminalView {
             scroll_handle,
             needs_serialize: false,
             custom_title: None,
+            custom_color: None,
             ime_state: None,
             self_handle: cx.entity().downgrade(),
             rename_editor: None,
@@ -399,6 +468,24 @@ impl TerminalView {
             cx.notify();
         }
     }
+
+    pub fn custom_color(&self) -> Option<TerminalTabColor> {
+        self.custom_color
+    }
+
+    pub fn set_custom_color(
+        &mut self,
+        color: Option<TerminalTabColor>,
+        cx: &mut Context<Self>,
+    ) {
+        if self.custom_color != color {
+            self.custom_color = color;
+            self.needs_serialize = true;
+            cx.emit(ItemEvent::UpdateTab);
+            cx.notify();
+        }
+    }
+
 
     pub fn is_renaming(&self) -> bool {
         self.rename_editor.is_some()
@@ -1425,6 +1512,10 @@ impl Item for TerminalView {
         terminal.title(detail == 0).into()
     }
 
+    fn tab_color(&self, _cx: &App) -> Option<gpui::Hsla> {
+        self.custom_color.map(|c| c.tab_background())
+    }
+
     fn telemetry_event_text(&self) -> Option<&'static str> {
         None
     }
@@ -1590,6 +1681,84 @@ impl Item for TerminalView {
         }
     }
 
+    fn extend_tab_context_menu(
+        &self,
+        menu: ui::ContextMenu,
+        _window: &mut Window,
+        _cx: &mut Context<Self>,
+    ) -> ui::ContextMenu {
+        let self_handle = self.self_handle.clone();
+        let current_color = self.custom_color;
+        menu.separator().submenu("Tab Color", move |menu, _window, _cx| {
+            let mut menu = menu;
+            for color in TerminalTabColor::ALL {
+                let color = *color;
+                let label = color.label();
+                let is_selected = current_color == Some(color);
+                let self_handle = self_handle.clone();
+                menu = menu.custom_entry(
+                    move |_window, _cx| {
+                        h_flex()
+                            .w_full()
+                            .gap_2()
+                            .child(
+                                div()
+                                    .size_3()
+                                    .rounded_full()
+                                    .bg(color.hsla()),
+                            )
+                            .child(Label::new(label).size(LabelSize::Small))
+                            .when(is_selected, |this| {
+                                this.child(
+                                    div().ml_auto().child(
+                                        Icon::new(IconName::Check)
+                                            .size(IconSize::Small)
+                                            .color(Color::Accent),
+                                    ),
+                                )
+                            })
+                            .into_any_element()
+                    },
+                    {
+                        let self_handle = self_handle.clone();
+                        move |_window, cx| {
+                            self_handle
+                                .update(cx, |this, cx| {
+                                    this.set_custom_color(Some(color), cx);
+                                })
+                                .ok();
+                        }
+                    },
+                );
+            }
+            let self_handle = self_handle.clone();
+            menu = menu.separator().custom_entry(
+                move |_window, _cx| {
+                    h_flex()
+                        .w_full()
+                        .gap_2()
+                        .child(
+                            div()
+                                .size_3()
+                                .rounded_full()
+                                .border_1()
+                                .border_color(gpui::hsla(0.0, 0.0, 0.5, 0.5)),
+                        )
+                        .child(Label::new("Clear Color").size(LabelSize::Small))
+                        .into_any_element()
+                },
+                move |_window, cx| {
+                    self_handle
+                        .update(cx, |this, cx| {
+                            this.set_custom_color(None, cx);
+                        })
+                        .ok();
+                },
+            );
+            menu
+        })
+    }
+
     fn buffer_kind(&self, _: &App) -> workspace::item::ItemBufferKind {
         workspace::item::ItemBufferKind::Singleton
     }
@@ -1733,6 +1902,7 @@ impl SerializableItem for TerminalView {
         let workspace_id = self.workspace_id?;
         let cwd = terminal.working_directory();
         let custom_title = self.custom_title.clone();
+        let custom_color = self.custom_color.map(|c| c.label().to_string());
         self.needs_serialize = false;
 
         let db = TerminalDb::global(cx);
@@ -1742,6 +1912,8 @@ impl SerializableItem for TerminalView {
                     .await?;
             }
             db.save_custom_title(item_id, workspace_id, custom_title)
+                .await?;
+            db.save_custom_color(item_id, workspace_id, custom_color)
                 .await?;
             Ok(())
         }))
@@ -1760,7 +1932,7 @@ impl SerializableItem for TerminalView {
         cx: &mut App,
     ) -> Task<anyhow::Result<Entity<Self>>> {
         window.spawn(cx, async move |cx| {
-            let (cwd, custom_title) = cx
+            let (cwd, custom_title, custom_color) = cx
                 .update(|_window, cx| {
                     let db = TerminalDb::global(cx);
                     let from_db = db
@@ -1782,10 +1954,15 @@ impl SerializableItem for TerminalView {
                         .log_err()
                         .flatten()
                         .filter(|title| !title.trim().is_empty());
-                    (cwd, custom_title)
+                    let custom_color = db
+                        .get_custom_color(item_id, workspace_id)
+                        .log_err()
+                        .flatten()
+                        .and_then(|c| TerminalTabColor::from_str(&c));
+                    (cwd, custom_title, custom_color)
                 })
                 .ok()
-                .unwrap_or((None, None));
+                .unwrap_or((None, None, None));
 
             let terminal = project
                 .update(cx, |project, cx| project.create_terminal_shell(cwd, cx))
@@ -1802,6 +1979,9 @@ impl SerializableItem for TerminalView {
                     );
                     if custom_title.is_some() {
                         view.custom_title = custom_title;
+                    }
+                    if custom_color.is_some() {
+                        view.custom_color = custom_color;
                     }
                     view
                 })
@@ -2708,3 +2888,4 @@ mod tests {
         });
     }
 }
+

@@ -190,6 +190,11 @@ pub trait Item: Focusable + EventEmitter<Self::Event> + Render + Sized {
         None
     }
 
+    /// Returns an optional background color override for this item's tab.
+    fn tab_color(&self, _cx: &App) -> Option<gpui::Hsla> {
+        None
+    }
+
     /// Returns the tab tooltip text.
     ///
     /// Use this if you don't need to customize the tab tooltip content.
@@ -379,6 +384,17 @@ pub trait Item: Focusable + EventEmitter<Self::Event> + Render + Sized {
     ) -> Vec<(SharedString, Box<dyn Action>)> {
         Vec::new()
     }
+
+    /// Appends additional items (including submenus) to the tab's context menu.
+    /// Called after `tab_extra_context_menu_actions` entries have been added.
+    fn extend_tab_context_menu(
+        &self,
+        _menu: ui::ContextMenu,
+        _window: &mut Window,
+        _cx: &mut Context<Self>,
+    ) -> ui::ContextMenu {
+        _menu
+    }
 }
 
 pub trait SerializableItem: Item {
@@ -463,6 +479,7 @@ pub trait ItemHandle: 'static + Send {
     fn tab_content_text(&self, detail: usize, cx: &App) -> SharedString;
     fn suggested_filename(&self, cx: &App) -> SharedString;
     fn tab_icon(&self, window: &Window, cx: &App) -> Option<Icon>;
+    fn tab_color(&self, cx: &App) -> Option<gpui::Hsla>;
     fn tab_tooltip_text(&self, cx: &App) -> Option<SharedString>;
     fn tab_tooltip_content(&self, cx: &App) -> Option<TabTooltipContent>;
     fn telemetry_event_text(&self, cx: &App) -> Option<&'static str>;
@@ -561,6 +578,12 @@ pub trait ItemHandle: 'static + Send {
         window: &mut Window,
         cx: &mut App,
     ) -> Vec<(SharedString, Box<dyn Action>)>;
+    fn extend_tab_context_menu(
+        &self,
+        menu: ui::ContextMenu,
+        window: &mut Window,
+        cx: &mut App,
+    ) -> ui::ContextMenu;
     fn can_autosave(&self, cx: &App) -> bool {
         let is_deleted = self.project_entry_ids(cx).is_empty();
         self.is_dirty(cx) && !self.has_conflict(cx) && self.can_save(cx) && !is_deleted
@@ -617,6 +640,10 @@ impl<T: Item> ItemHandle for Entity<T> {
 
     fn tab_icon(&self, window: &Window, cx: &App) -> Option<Icon> {
         self.read(cx).tab_icon(window, cx)
+    }
+
+    fn tab_color(&self, cx: &App) -> Option<gpui::Hsla> {
+        self.read(cx).tab_color(cx)
     }
 
     fn tab_tooltip_content(&self, cx: &App) -> Option<TabTooltipContent> {
@@ -1156,6 +1183,17 @@ impl<T: Item> ItemHandle for Entity<T> {
     ) -> Vec<(SharedString, Box<dyn Action>)> {
         self.update(cx, |this, cx| {
             this.tab_extra_context_menu_actions(window, cx)
+        })
+    }
+
+    fn extend_tab_context_menu(
+        &self,
+        menu: ui::ContextMenu,
+        window: &mut Window,
+        cx: &mut App,
+    ) -> ui::ContextMenu {
+        self.update(cx, |this, cx| {
+            this.extend_tab_context_menu(menu, window, cx)
         })
     }
 }

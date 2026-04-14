@@ -2842,8 +2842,10 @@ impl Pane {
 
         let has_file_icon = icon.is_some() | decorated_icon.is_some();
 
+        let tab_color = item.tab_color(cx);
         let capability = item.capability(cx);
         let tab = Tab::new(ix)
+            .custom_bg_color(tab_color)
             .position(if is_first_item {
                 TabPosition::First
             } else if is_last_item {
@@ -3047,6 +3049,7 @@ impl Pane {
                 let pane = pane.clone();
                 let menu_context = menu_context.clone();
                 let extra_actions = item_handle.tab_extra_context_menu_actions(window, cx);
+                let item_handle = item_handle.boxed_clone();
                 ContextMenu::build(window, cx, move |mut menu, window, cx| {
                     let close_active_item_action = CloseActiveItem {
                         save_intent: None,
@@ -3340,6 +3343,8 @@ impl Pane {
                             menu = menu.action(label, action);
                         }
                     }
+
+                    menu = item_handle.extend_tab_context_menu(menu, window, cx);
 
                     menu.context(menu_context)
                 })
