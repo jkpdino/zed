@@ -1,0 +1,80 @@
+name: Build macOS App
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - terminal-tab-icons
+      - terminal-tab-coloring
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: "0"
+
+jobs:
+  bundle-mac:
+    runs-on: macos-14
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        run: |
+          rustup target add aarch64-apple-darwin
+          rustup component add rustfmt clippy
+
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: macos-cargo-${{ hashFiles('Cargo.lock') }}
+          restore-keys: macos-cargo-
+
+      - name: Install cargo-bundle
+        run: cargo install cargo-bundle --git https://github.com/zed-industries/cargo-bundle.git --branch zed-deploy
+
+      - name: Install cargo-about
+        run: cargo install cargo-about --version 0.8.2
+
+      - name: Install cmake
+        run: brew install cmake
+
+      - name: Generate licenses
+        run: script/generate-licenses
+
+      - name: Build binaries
+        run: |
+          cargo build --release --package zed --package cli --target aarch64-apple-darwin
+          cargo build --release --package remote_server --target aarch64-apple-darwin
+
+      - name: Create app bundle
+        run: |
+          pushd crates/zed
+          channel=$(<RELEASE_CHANNEL)
+          cp Cargo.toml Cargo.toml.backup
+          sed -i.backup "s/package.metadata.bundle-${channel}/package.metadata.bundle/" Cargo.toml
+          app_path=$(cargo bundle --release --target aarch64-apple-darwin --select-workspace-root | xargs)
+          mv Cargo.toml.backup Cargo.toml
+          popd
+
+          if [[ -f "crates/zed/resources/Document.icns" ]]; then
+            cp "crates/zed/resources/Document.icns" "${app_path}/Contents/Resources/Document.icns"
+          fi
+
+          echo "APP_PATH=${app_path}" >> "$GITHUB_ENV"
+
+      - name: Create ZIP
+        run: |
+          cd "$(dirname "$APP_PATH")"
+          zip -r "${GITHUB_WORKSPACE}/Zed-Dev.zip" "$(basename "$APP_PATH")"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Zed-Dev-macOS-arm64
+          path: Zed-Dev.zip
+          retention-days: 30
