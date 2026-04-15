@@ -13,4 +13,10 @@
     "allow_concurrent_runs": true,
     "use_new_terminal": false,
   },
+  {
+    "label": "Claude Code",
+    "command": "claude",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": true,
+  },
 ]
