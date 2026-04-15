@@ -2761,12 +2761,15 @@ impl Pane {
             .map(|id| id == item.item_id())
             .unwrap_or(false);
 
+        let is_pinned = self.is_tab_pinned(ix);
+
         let label = item.tab_content(
             TabContentParams {
                 detail: Some(detail),
                 selected: is_active,
                 preview: is_preview,
                 deemphasized: !self.has_focus(window, cx),
+                pinned: is_pinned,
             },
             window,
             cx,
@@ -2829,7 +2832,6 @@ impl Pane {
         let item_id = item.item_id();
         let is_first_item = ix == 0;
         let is_last_item = ix == self.items.len() - 1;
-        let is_pinned = self.is_tab_pinned(ix);
         let position_relative_to_active_item = ix.cmp(&self.active_item_index);
 
         let read_only_toggle = |toggleable: bool| {
@@ -4904,6 +4906,7 @@ impl Render for DraggedTab {
                 selected: false,
                 preview: false,
                 deemphasized: false,
+                pinned: false,
             },
             window,
             cx,

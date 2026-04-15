@@ -1765,7 +1765,7 @@ impl Item for TerminalView {
                         )
                     }),
             )
-            .child(
+            .when(!params.pinned, |this| this.child(
                 div()
                     .relative()
                     .child(
@@ -1799,7 +1799,7 @@ impl Item for TerminalView {
                                 }),
                         )
                     }),
-            )
+            ))
             .into_any()
     }
 

@@ -133,6 +133,8 @@ pub struct TabContentParams {
     pub preview: bool,
     /// Tab content should be deemphasized when active pane does not have focus.
     pub deemphasized: bool,
+    /// Whether this tab is pinned. Pinned tabs may hide their title.
+    pub pinned: bool,
 }
 
 impl TabContentParams {
